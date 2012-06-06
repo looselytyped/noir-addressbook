@@ -2,7 +2,8 @@
   (:use noir.core
         hiccup.core
         hiccup.form)
-  (:require [noir-addressbook.views.common :as common]))
+  (:require [noir-addressbook.views.common :as common]
+            [noir-addressbook.models.entry :as entry]))
 
 (defpage "/" {:as entry}
   (common/layout
@@ -16,4 +17,6 @@
             (submit-button "Add Friend"))))
 
 (defpage [:post "/"] {:as entry}
-  (render "/" entry))
+  (let [e (entry/add! entry)]
+   (render "/" e)))
+
