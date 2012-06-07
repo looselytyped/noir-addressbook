@@ -5,13 +5,15 @@
   (:require [noir-addressbook.views.common :as common]
             [noir-addressbook.models.entry :as entry]
             [noir.response :as resp]
-            [noir.validation :as validate]))
+            [noir.validation :as validate]
+            [noir.session :as session]))
 
 (defpartial error-item [[first-error]]
   [:p.error first-error])
 
 (defpage "/" {:as entry}
   (common/layout
+   [:div#inform (session/flash-get :msg)]
    (form-to [:post "/"]
             (validate/on-error :firstname error-item)
             (label "firstname" "First Name")
@@ -24,7 +26,7 @@
             (submit-button "Add Friend"))))
 
 (defpage [:post "/"] {:as entry}
-  (if (entry/add! entry)
-    (resp/redirect "/")
-    (render "/" entry)))
-
+  (when-let [e (entry/add! entry)] 
+    (session/flash-put! :msg (str (e :firstname) " was created"))
+    (resp/redirect "/"))
+  (render "/"))
